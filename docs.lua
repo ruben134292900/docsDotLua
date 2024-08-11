@@ -23,7 +23,7 @@
 ---@field Optional boolean?
 
 ---@class Return
----@field Name string
+---@field Name string?
 ---@field Type string
 ---@field Optional boolean?
 
@@ -41,7 +41,9 @@
 ---@field Methods Method[]?
 ---@field Fields Field[]?
 
----@class anyDoc: baseDoc, libraryDocument, classDocument
+---@class functionModuleDocument: Method
+
+---@class anyDoc: baseDoc, libraryDocument, classDocument, functionModuleDocument
 
 ---@type fun(String: string, headerSize: integer?): string
 local function Header(String, headerSize)
@@ -134,7 +136,7 @@ end
 ---@type fun(Doc: libraryDocument): string
 local function libraryDocumentToString(Doc)
     local Name = Header(Doc.Name) .. "\n"
-    local Description = Doc.Description .. "\n\n" or ""
+    local Description = Doc.Description and Doc.Description .. "\n\n" or ""
 
     local Constants = Doc.Constants and Header("Constants", 2) .. "\n" or ""
     local Methods = Doc.Methods and Header("Methods", 2) .. "\n" or ""
@@ -157,7 +159,7 @@ end
 ---@type fun(Doc: classDocument): string
 local function classDocumentToString(Doc)
     local Name = Header(Doc.Name .. " (Class)") .. "\n"
-    local Description = Doc.Description .. "\n\n" or ""
+    local Description = Doc.Description and Doc.Description .. "\n\n" or ""
 
     local Fields = Doc.Fields and Header("Fields", 2) .. "\n" or ""
     local Methods = Doc.Methods and Header("Methods", 2) .. "\n" or ""
@@ -177,18 +179,28 @@ local function classDocumentToString(Doc)
     return Name .. Description .. Fields .. Methods
 end
 
+---@type fun(Method: Method): string
+local function functionModuleDocumentToString(Method)
+    local Name = Header(Method.Name, 1) .. "\n"
+    local Description = Method.Description and Method.Description .. "\n\n" or ""
+
+    local Parameters = Method.Parameters and parametersToString(Method.Parameters) or ""
+    local Returns = Method.Returns and returnsToString(Method.Returns) or ""
+
+    return Name .. Description .. Parameters .. "\n" .. Returns
+end
+
 ---@param Docs anyDoc[]
 return function(Docs)
-    local Page = 1
     local Doc = ""
 
     for i, v in next, Docs do
-        Page = i
-
         if v.Type == "Library" then
             Doc = Doc .. libraryDocumentToString(v) .. "\n"
         elseif v.Type == "Class" then
             Doc = Doc .. classDocumentToString(v) .. "\n"
+        elseif v.Type == "Function" then
+            Doc = Doc .. functionModuleDocumentToString(v) .. "\n"
         end
     end
 
