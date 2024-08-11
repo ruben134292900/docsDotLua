@@ -52,6 +52,8 @@
 
 
 # baseDoc (Class)
+A base class where every document inherits from.
+
 ## Fields
 ### Name: `string`
 
@@ -113,3 +115,7 @@ Turns the input table into a markdown string.
 | Returns |
 | :-- |
 | `string` |
+
+
+
+##### note: i made this with the module
