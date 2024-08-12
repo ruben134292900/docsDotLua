@@ -83,6 +83,7 @@ local metaOperators = {
 ---@class classDocument: baseDoc
 ---@field Methods Method[]?
 ---@field Fields Field[]?
+---@field Inherits (classDocument | classDocument[])?
 ---@field MetaMethods metaMethod[]?
 
 ---@class functionModuleDocument: Method
@@ -230,9 +231,39 @@ local function classDocumentToString(Doc)
     local Name = Header(Doc.Name .. " (Class)") .. "\n"
     local Description = Doc.Description and Doc.Description .. "\n\n" or ""
 
+    local inheritsNote = Doc.Inherits and Header("Inherits: ", 4) or ""
+
+    ---@type {Fields: {[string]: Field[]}, Methods: {[string]: Method[]}, MetaMethods: {[string]: metaMethod[]}}
+    local inheritedObjects = {
+        Fields = {},
+        Methods = {},
+        MetaMethods = {}
+    }
+
+    if not Doc.Inherits then goto continue end
+    if not Doc.Inherits.Type then
+        for i, Class in next, Doc.Inherits do
+            inheritedObjects.Fields[Class.Name] = Class.Fields
+            inheritedObjects.Methods[Class.Name] = Class.Methods
+            inheritedObjects.MetaMethods[Class.Name] = Class.MetaMethods
+
+            inheritsNote = inheritsNote .. "`" .. Class.Name .. "` "
+        end
+    elseif Doc.Inherits.Type then
+        inheritedObjects.Fields[Doc.Inherits.Name] = Doc.Inherits.Fields
+        inheritedObjects.Methods[Doc.Inherits.Name] = Doc.Inherits.Methods
+        inheritedObjects.MetaMethods[Doc.Inherits.Name] = Doc.Inherits.MetaMethods
+        inheritsNote = inheritsNote .. "`" .. Doc.Inherits.Name .. "`"
+    end
+    ::continue::
+
     local Fields = Doc.Fields and Header("Fields", 2) .. "\n" or ""
     local Methods = Doc.Methods and Header("Methods", 2) .. "\n" or ""
     local MetaMethods = Doc.MetaMethods and Header("Meta Methods", 2) .. "\n" or ""
+
+    local inheritedFields = ""
+    local inheritedMethods = ""
+    local inheritedMetaMethods = ""
 
     if Doc.Fields then
         for i, v in next, Doc.Fields do
@@ -252,7 +283,28 @@ local function classDocumentToString(Doc)
         end
     end
 
-    return Name .. Description .. Fields .. Methods .. MetaMethods
+    for i, Fields in next, inheritedObjects.Fields do
+        inheritedFields = inheritedFields .. Header("Fields from `".. i .. "`", 2) .. "\n"
+        for idx, Field in next, Fields do
+            inheritedFields = inheritedFields .. fieldToString(Field) .. "\n"
+        end
+    end
+
+    for i, Methods in next, inheritedObjects.Methods do
+        inheritedMethods = inheritedMethods .. Header("Methods from `".. i .. "`", 2) .. "\n"
+        for idx, Method in next, Methods do
+            inheritedMethods = inheritedMethods .. methodToString(Method) .. "\n"
+        end
+    end
+
+    for i, MetaMethods in next, inheritedObjects.MetaMethods do
+        inheritedMetaMethods = inheritedMetaMethods .. Header("Meta Methods from `".. i .. "`", 2) .. "\n"
+        for idx, MetaMethod in next, MetaMethods do
+            inheritedMetaMethods = inheritedMetaMethods .. metaMethodToString(MetaMethod) .. "\n"
+        end
+    end
+
+    return Name .. inheritsNote .. "\n" .. Description .. Fields .. inheritedFields .. Methods .. inheritedMethods .. MetaMethods .. inheritedMetaMethods
 end
 
 ---@type fun(Method: Method): string
