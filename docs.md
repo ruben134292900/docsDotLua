@@ -1,4 +1,89 @@
+# baseDoc (Class)
+
+A base document type which every other document type inherits from.
+
+## Fields
+### Name: `string`
+
+### Type: `string`
+
+### Description: `string?`
+
+
+# libraryDocument (Class)
+#### Inherits: `baseDoc`
+A library document useful for documenting libraries / modules.
+
+## Fields
+### Methods: `Method[]?`
+
+### Constants: `Constant[]?`
+
+## Fields from `baseDoc`
+### Name: `string`
+
+### Type: `string`
+
+### Description: `string?`
+
+
+# classDocument (Class)
+#### Inherits: `baseDoc`
+## Fields
+### Methods: `Method[]?`
+
+### Constants: `Constant[]?`
+
+### Inherits: `classDocument? | classDocument[]?`
+
+### MetaMethods: `metaMethod[]?`
+
+## Fields from `baseDoc`
+### Name: `string`
+
+### Type: `string`
+
+### Description: `string?`
+
+
+# functionModuleDocument (Class)
+#### Inherits: `Method`
+## Fields from `Method`
+### Name: `string`
+
+### Description: `string?`
+
+### Parameters: `Parameter[]?`
+
+### Returns: `Return[]?`
+
+
+# anyDoc (Class)
+#### Inherits: `baseDoc` `classDocument` `libraryDocument` `functionModuleDocument` 
+## Fields from `classDocument`
+### Methods: `Method[]?`
+
+### Constants: `Constant[]?`
+
+### Inherits: `classDocument? | classDocument[]?`
+
+### MetaMethods: `metaMethod[]?`
+
+## Fields from `baseDoc`
+### Name: `string`
+
+### Type: `string`
+
+### Description: `string?`
+
+## Fields from `libraryDocument`
+### Methods: `Method[]?`
+
+### Constants: `Constant[]?`
+
+
 # Constant (Class)
+
 ## Fields
 ### Name: `string`
 
@@ -12,6 +97,7 @@
 
 
 # Field (Class)
+
 ## Fields
 ### Name: `string`
 
@@ -23,6 +109,7 @@
 
 
 # Method (Class)
+
 ## Fields
 ### Name: `string`
 
@@ -34,88 +121,36 @@
 
 
 # Parameter (Class)
+
 ## Fields
 ### Name: `string`
 
 ### Type: `string`
 
-### Optional: `boolean?`
+### Optional: `boolean`
 
 
 # Return (Class)
+
 ## Fields
 ### Name: `string?`
 
 ### Type: `string`
 
-### Optional: `boolean?`
+### Optional: `boolean`
 
 
-# baseDoc (Class)
-A base class where every document inherits from.
-
-## Fields
-### Name: `string`
-
-### Description: `string?`
-
-### Type: `string`
-
-
-# libraryDocument (Class)
-## Fields
-### Name: `string`
-
-### Description: `string?`
-
-### Type: `string`
-
-### Methods: `Method[]?`
-
-### Constants: `Constant[]?`
-
-
-# classDocument (Class)
-## Fields
-### Name: `string`
-
-### Description: `string?`
-
-### Type: `string`
-
-### Methods: `Method[]?`
-
-### Fields: `Field[]?`
-
-
-# functionModuleDocument (Class)
-Same as the `Method` class but it has a bigger header, useful for documenting modules which return a function.
+# metaMethod (Class)
 
 ## Fields
-### Name: `string`
+### Type: `"Add" | "Sub" | "Div" | "iDiv" | "Mul" | "Pow" | "Unm" | "Mod" | "tostring" | "Call" | "Equals" | "Less Than" | "Less Equals" | "Length" | "Concatenation" | "Metatable"`
+The meta method function.
 
-### Description: `string?`
+### paramA: `string`
+Also known as `self`
 
-### Parameters: `Parameter[]?`
+### paramB: `string?`
 
-### Returns: `Return[]?`
+### Return: `string?`
+The result of the meta method.
 
-
-# anyDoc (Class)
-A class which is every type of document merged into 1 class.
-
-
-# The module
-Turns the input table into a markdown string.
-
-| Parameters |
-| :-- |
-| Docs: `anyDoc[]` |
-
-| Returns |
-| :-- |
-| `string` |
-
-
-
-##### note: i made this with the module
