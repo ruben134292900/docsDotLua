@@ -1,3 +1,41 @@
+---@alias metaMethodType
+---| "Add"
+---| "Sub"
+---| "Div"
+---| "iDiv"
+---| "Mul"
+---| "Pow"
+---| "Unm"
+---| "Mod"
+---| "tostring"
+---| "Call"
+---| "Equals"
+---| "Less Than"
+---| "Less Equals"
+---| "Length"
+---| "Concatenation"
+---| "Metatable"
+
+
+local metaOperators = {
+    Add = "+",
+    Sub = "-",
+    Div = "/",
+    iDiv = "//",
+    Mul = "*",
+    Pow = "^",
+    Unm = "-",
+    Mod = "%",
+    tostring = "tostring",
+    Call = "()",
+    Equals = "==",
+    ["Less Than"] = "<",
+    ["Less Equals"] = "<=",
+    Concatenation = "..",
+    Length = "#",
+    Metatable = "getmetatable"
+}
+
 ---@class Constant
 ---@field Name string
 ---@field Description string?
@@ -27,6 +65,11 @@
 ---@field Type string
 ---@field Optional boolean?
 
+---@class metaMethod
+---@field Type metaMethodType
+---@field paramA string
+---@field paramB string?
+---@field Return string?
 
 ---@class baseDoc
 ---@field Name string
@@ -40,6 +83,7 @@
 ---@class classDocument: baseDoc
 ---@field Methods Method[]?
 ---@field Fields Field[]?
+---@field MetaMethods metaMethod[]?
 
 ---@class functionModuleDocument: Method
 
@@ -99,6 +143,31 @@ local function methodToString(Method)
     local Returns = Method.Returns and returnsToString(Method.Returns) or ""
 
     return Name .. Description .. Parameters .. "\n" .. Returns
+end
+
+---@type fun(metaMethod: metaMethod): string
+local function metaMethodToString(metaMethod)
+    local Type = metaMethod.Type
+    local Operator = metaOperators[Type]
+    
+    if not Operator then
+        return ""
+    end
+
+    local Name = Header(Type, 3) .. "\n"
+    local Result = "`" .. metaMethod.Return .. "`"
+
+    if Type == "Metatable" or Type == "tostring" then
+        Operator = "`" .. Operator .. "(" .. metaMethod.paramA .. ")`"
+    elseif Type == "Add" or Type == "Sub" or Type == "Div" or Type == "iDiv" or Type == "Mul" or Type == "Pow" or Type == "Mod" or Type == "Equals" or Type == "Less Than" or Type == "Less Equals" or Type == "Concatenation" then
+        Operator = "`" .. metaMethod.paramA .. " " .. Operator .. " " .. metaMethod.paramB .. "`"
+    elseif Type == "Length" then
+        Operator = "`" .. Operator .. metaMethod.paramA .. "`"
+    elseif Type == "Call" then
+        Operator = "`" .. metaMethod.paramA .. "()`"
+    end
+
+    return Name .. Operator .. " : " .. Result .. "\n\n"
 end
 
 ---@type fun(Field: Field): string
@@ -163,6 +232,7 @@ local function classDocumentToString(Doc)
 
     local Fields = Doc.Fields and Header("Fields", 2) .. "\n" or ""
     local Methods = Doc.Methods and Header("Methods", 2) .. "\n" or ""
+    local MetaMethods = Doc.MetaMethods and Header("Meta Methods", 2) .. "\n" or ""
 
     if Doc.Fields then
         for i, v in next, Doc.Fields do
@@ -176,7 +246,13 @@ local function classDocumentToString(Doc)
         end
     end
 
-    return Name .. Description .. Fields .. Methods
+    if Doc.MetaMethods then
+        for i, v in next, Doc.MetaMethods do
+            MetaMethods = MetaMethods .. metaMethodToString(v) .. "\n"
+        end
+    end
+
+    return Name .. Description .. Fields .. Methods .. MetaMethods
 end
 
 ---@type fun(Method: Method): string
