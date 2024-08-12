@@ -162,7 +162,7 @@ local function metaMethodToString(metaMethod)
         Operator = "`" .. Operator .. "(" .. metaMethod.paramA .. ")`"
     elseif Type == "Add" or Type == "Sub" or Type == "Div" or Type == "iDiv" or Type == "Mul" or Type == "Pow" or Type == "Mod" or Type == "Equals" or Type == "Less Than" or Type == "Less Equals" or Type == "Concatenation" then
         Operator = "`" .. metaMethod.paramA .. " " .. Operator .. " " .. metaMethod.paramB .. "`"
-    elseif Type == "Length" then
+    elseif Type == "Length" or Type == "Unm" then
         Operator = "`" .. Operator .. metaMethod.paramA .. "`"
     elseif Type == "Call" then
         Operator = "`" .. metaMethod.paramA .. "()`"
